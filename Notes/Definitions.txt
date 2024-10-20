@@ -1,0 +1,31 @@
+What is AT_FDCWD and O_RDONLY at the open system call?
+
+What is rt_sigaction?
+
+What does the strace and ltrace function accomplish exactly and how?
+
+What does the getenv do?
+
+Difference between a regular file and a mkfifo file. Why do we need it for challenge 4?
+
+open("magic_mirror", 2, ->0400000<-) what does the number represent?
+
+What is this function: fcntl(99, F_GETFD)?
+
+What does this redirection do exactly and how does it help us to solve challenge 5 ( ./riddle 99>&1)?
+
+Why did we use a FIFO file on challenge 6?
+
+What is the dup2 function?
+
+What is the lstat(".hey_there", 0x7ffc09f60f70) function?
+
+What does the dd if=/dev/zero of=bf00 bs=1 count=16 seek=1073741824 command do?
+
+What does lseek do?
+
+What does mmap do?
+
+What does fstat(0, {st_mode=S_IFCHR|0620, st_rdev=makedev(0x88, 0x1), ...}) = 0 do?
+
+

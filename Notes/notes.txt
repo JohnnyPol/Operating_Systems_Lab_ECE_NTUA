@@ -1,0 +1,250 @@
+Important Commands used: strace, ltrace, kill, ps, gdb
+
+- Challenge 0:  Run strace ./riddle and you get "openat(AT_FDCWD, ".hello_there", O_RDONLY) = -1 ENOENT (No such file or directory)
+write(2, "\33[31mFAIL\33[0m\n", 14FAIL". So create a .hello_there file with the touch command.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 1:  Run again strace ./riddle and you get "openat(AT_FDCWD, ".hello_there", O_WRONLY) = 4". 
+                From the hint noone should have access so chmod 444 .hello_there so the file cannot be written.
+                Even chmod 555 works!
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 2: Run again strace and you get
+""" 
+	rt_sigaction(SIGALRM, {sa_handler=0x558b6b10a350, sa_mask=[ALRM], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f29a7a0e5d0}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+	rt_sigaction(SIGCONT, {sa_handler=0x558b6b10a350, sa_mask=[CONT], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f29a7a0e5d0}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+	alarm(10)                               = 0
+	pause()                                 = ? ERESTARTNOHAND (To be restarted if no handler)
+	--- SIGALRM {si_signo=SIGALRM, si_code=SI_KERNEL} ---
+	rt_sigreturn({mask=[]})                 = -1 EINTR (Interrupted system call)
+	write(2, "\33[31mYou were eaten by a grue. F"..., 40You were eaten by a grue. FAIL
+	) = 40
+"""
+SIGALRM: This specifies the signal being handled here. SIGALRM is a signal sent to a process after a timer set by alarm() expires. It's often used to implement timeouts.
+SIGCONT: This signal is sent to a process to resume it after it has been stopped (using SIGSTOP or SIGTSTP). The same signal handler and flags are applied to this signal as for SIGALRM.
+
+We run ./riddle and in another terminal we run ./challenge_2_script.sh
+
+The alarm(10) means that the SIGALRM signal will be invoked during the pause after 10 seconds. In order to prevent that, we need to send in those 10 seconds an SIGCONT signal in 
+order for the process to resume. Firstly, we need to find the pid of the riddle process with the command "ps aux | grep riddle". Then we need to send the signal to that process 
+with the kill command (kill -SIGCONT <pid>). We put all of that in a script we called challenge_2_script.sh.
+
+grep '[r]iddle': Searches the output of ps aux for processes that match the string riddle. The brackets [] are used to prevent grep from matching its own process in the results.
+Normally, running grep riddle would also return the grep riddle command itself as a match, but [r]iddle makes sure only processes containing "riddle" are matched.
+
+[ -n "$pid" ]: This condition checks if the variable pid is non-empty, which means the "riddle" process was found. The -n flag checks if the string (PID in this case) is not null.
+
+Or another option is to run the ./challenge_2_script_version_2.sh script where we run the ./riddle on the background, get the pid and send the SIGCONT signal.
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 3: Run ltrace ./riddle and you get
+"""
+__fprintf_chk(0x7fa70de484e0, 1, 0x562383f89011, 3
+Challenge   3: 'what is the answer to life the universe and everything?'
+)                                 = 74
+__fprintf_chk(0x7fa70de484e0, 1, 0x562383f8904b, 0x562383f8d6a0Hint:          'ltrace'.
+)                    = 25
+getenv("ANSWER")                                                                    = nil
+__fprintf_chk(0x7fa70de484e0, 1, 0x562383f8906e, 0x562383f8900cFAIL
+)                    = 14
+"""
+The program checks for the environmental variable ANSWER and it has a value of nil, meaning it doesn't exist. From the clue, which a reference to a movie, the number is 42. 
+So we try to create the env variable and give it the value 42 with the command export ANSWER=42.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 4: Run ltrace ./riddle and you get
+"""
+Challenge   4: 'First-in, First-out'
+)                                 = 38
+getenv("I_HATE_GAME_HINTS")                                                         = nil
+__fprintf_chk(0x7f753b2ef4e0, 1, 0x559ac31ee04b, 0x559ac31f26a0Hint:          'Mirror, mirror on the wall, who in this land is fairest of all?'.
+)                    = 82
+getenv("I_NEED_TECH_HINTS")                                                         = nil
+open("magic_mirror", 2, 0400000)                                                    = -1
+__fprintf_chk(0x7f753b2ef4e0, 1, 0x559ac31ee06e, 0x559ac31f26a0I cannot see my reflection. FAIL
+)
+"""
+We see that it tries to open a magic_mirror file. So we create the file with touch magic_mirror. However, that doesn't work either, it opens the file and does the following. 
+"""
+open("magic_mirror", 2, 0400000)                                                    = 4
+rand()                                                                              = 774226550
+write(4, "G", 1)                                                                    = 1
+read(4, "", 1)
+"""
+Now from the clue (First-in First-out *FIFO*) to make a FIFO file instead of a regular one with the command mkfifo magic_mirror, it works.
+The program wants to read the same character that it has written.
+
+ltrace ./riddle (after we've created the FIFO file)
+"""
+    open("magic_mirror", 2, 0400000)                                                                                         = 4
+    rand()                                                                                                                   = 1542659492
+    write(4, "K", 1)                                                                                                         = 1
+    read(4, "K", 1)                                                                                                          = 1
+    rand()                                                                                                                   = 872261627
+    write(4, "D", 1)                                                                                                         = 1
+    read(4, "D", 1)                                                                                                          = 1
+    rand()                                                                                                                   = 814886251
+    write(4, "X", 1)                                                                                                         = 1
+    read(4, "X", 1)                                                                                                          = 1
+    rand()                                                                                                                   = 43452691
+    write(4, "J", 1)                                                                                                         = 1
+    read(4, "J", 1)                                                                                                          = 1
+    rand()                                                                                                                   = 1123793423
+    write(4, "Z", 1)                                                                                                         = 1
+    read(4, "Z", 1)                                                                                                          = 1
+    rand()                                                                                                                   = 1615222404
+    write(4, "Q", 1)                                                                                                         = 1
+    read(4, "Q", 1)                                                                                                          = 1
+    rand()                                                                                                                   = 486363442
+    write(4, "G", 1)                                                                                                         = 1
+    read(4, "G", 1)                                                                                                          = 1
+    rand()                                                                                                                   = 458282059
+    write(4, "B", 1)                                                                                                         = 1
+    read(4, "B", 1)                                                                                                          = 1
+    rand()                                                                                                                   = 272535659
+    write(4, "T", 1)                                                                                                         = 1
+    read(4, "T", 1)                                                                                                          = 1
+    rand()                                                                                                                   = 803189213
+    write(4, "V", 1)                                                                                                         = 1
+    read(4, "V", 1)                                                                                                          = 1
+    close(4)                                                                                                                 = 0
+"""
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 5:  Run strace ./riddle and you get 
+"""
+fcntl(99, F_GETFD)                      = -1 EBADF (Bad file descriptor)
+"""
+Now this system call is trying to check the status of the file descriptor 99, but this fd number is not valid. 
+Run the command:  ./riddle 99>&1
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 6: strace -f ./challenge_6_script.
+We run strace with the -f flag to see the system calls of the children processes.
+
+"""
+    clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLDstrace: Process 61259 attached
+    , child_tidptr=0x7fc77fe76a10) = 61259
+    [pid 61258] clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD <unfinished ...>
+    [pid 61259] set_robust_list(0x7fc77fe76a20, 24) = 0
+    [pid 61259] getpid()                    = 61259
+    [pid 61259] fstat(1,  <unfinished ...>
+    [pid 61258] <... clone resumed>, child_tidptr=0x7fc77fe76a10) = 61260
+    strace: Process 61260 attached
+    [pid 61258] wait4(-1,  <unfinished ...>
+    [pid 61259] <... fstat resumed>{st_mode=S_IFCHR|0620, st_rdev=makedev(0x88, 0x1), ...}) = 0
+    [pid 61260] set_robust_list(0x7fc77fe76a20, 24 <unfinished ...>
+    [pid 61259] write(1, "[61259] PING!\n", 14[61259] PING!
+    ) = 14
+    [pid 61259] write(34, "\0\0\0\0", 4)    = -1 EBADF (Bad file descriptor)
+    [pid 61260] <... set_robust_list resumed>) = 0
+    [pid 61259] exit_group(1)               = ?
+    [pid 61260] alarm(2 <unfinished ...>
+    [pid 61259] +++ exited with 1 +++
+    [pid 61258] <... wait4 resumed>[{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 61259
+    [pid 61258] --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=61259, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---
+    [pid 61258] wait4(-1,  <unfinished ...>
+    [pid 61260] <... alarm resumed>)        = 0
+    [pid 61260] read(33, 0x7ffcc42a56d4, 4) = -1 EBADF (Bad file descriptor)
+    [pid 61260] alarm(0)                    = 2
+    [pid 61260] exit_group(1)               = ?
+    [pid 61260] +++ exited with 1 +++
+    <... wait4 resumed>[{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 61260
+    --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=61260, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---
+"""
+
+Create two pipes, so that the communication between the processes can occur. They try to communicate with the file descriptors 33, 34 and 53, 54 correspondingly. 
+We replace those file descriptors with the corresponding pipes. 
+
+We run ./challenge_6_script
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 7: We run strace ./riddle
+
+"""
+    lstat(".hello_there", {st_mode=S_IFREG|0555, st_size=0, ...}) = 0
+    lstat(".hey_there", 0x7ffc09f60f70)     = -1 ENOENT (No such file or directory)
+"""
+lstat retrieves file information.
+We create the .hey_there file. But we get this now:
+
+"""
+    lstat(".hello_there", {st_mode=S_IFREG|0555, st_size=0, ...}) = 0
+    lstat(".hey_there", {st_mode=S_IFREG|0664, st_size=0, ...}) = 0
+    write(2, "Oops. 2095522 != 2151629.\n", 26Oops. 2095522 != 2151629)
+"""
+
+So we create a hard link in order to have the same lstat output.
+ln .hello_there .hey_there
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 8: We run strace ./riddle and we get that it tries to open the bf00 file. It does an lseek at 1073741824 so we create the bf00 file and
+               then we put dummy data until that position with the command dd if=/dev/zero of=bf00 bs=1 count=16 seek=1073741824.
+               After we write some data there so it can read the 16 bytes it wants. 
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 9: Run strace ./riddle and we get:
+
+"""
+    connect(4, {sa_family=AF_INET, sin_port=htons(49842), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 ECONNREFUSED (Connection refused)
+"""
+It tries to connect to port 49842 locally. We open a listener on that port with netcat (nc -lnvp 49842) and then we answer the question it gives us.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 10-11: We used the same solution for the next two challenges.
+
+We run strace ./riddle and then we get:
+
+"""
+openat(AT_FDCWD, "secret_number", O_RDWR|O_CREAT|O_TRUNC, 0600) = 4
+unlink("secret_number")                 = 0
+write(4, "The number I am thinking of righ"..., 4096) = 4096
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_SHARED, 4, 0) = 0x7f0a4dee2000
+close(4)
+"""
+MAP_SHARED: Changes made in the memory-mapped region are shared between processes and written to the file.
+Key to the solution is the MAP_SHARED option. Means that if we run the ./riddle as a child, the parent process has access to the secret_number file.
+We then read the file and guess correctly the number.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 12: We run strace ./riddle. 
+"""
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_SHARED, 4, 0) = 0x7f30596d9000
+write(2, "I want to find the char 'E' at 0"..., 46I want to find the char 'E' at 0x7f30596d906f
+"""
+The offset is 0x6f bytes. So we need to write the characted it wants at the /tmp/riddle-* file. 
+
+Run the ./riddle press <Ctrl> + Z to stop the process (so the clock won't bother us). Then run the script.
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 13: Run strace ./riddle
+"""
+openat(AT_FDCWD, ".hello_there", O_RDWR|O_CREAT, 0600) = 4
+ftruncate(4, 32768)                     = 0
+mmap(NULL, 32768, PROT_READ|PROT_WRITE, MAP_SHARED, 4, 0) = 0x7f6befac2000
+ftruncate(4, 16384) 
+"""
+SIGBUS: This signal indicates a "bus error," which usually occurs when a program tries to access memory that the operating system 
+cannot physically address. This can happen for various reasons, often related to memory mapping or hardware issues.
+If you called ftruncate to resize the file to a smaller size without considering that the mapped memory is still referencing the old size,
+We need to ftruncate again the file.
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Challenge 14: The file /proc/sys/kernel/ns_last_pid contains the pid of the last process, and because it increments sequeantially 
+we can change the output of the file, and then run the ./riddle process. 
+
+Run the script.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------

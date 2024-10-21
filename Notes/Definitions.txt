@@ -1,31 +1,74 @@
 What is AT_FDCWD and O_RDONLY at the open system call?
 
+AT_FDCWD: Specify the current working directory as the base directory for the relative path.
+
+O_RDONLY: Read-only mode. 
+
+-----------------------------------------------------------------------------------------------------------------------------
+
 What is rt_sigaction?
+
+It's a signal handler
+
+-----------------------------------------------------------------------------------------------------------------------------
 
 What does the strace and ltrace function accomplish exactly and how?
 
+strace: trace system calls by a process. strace uses the ptrace system call to attach itself to a process
+
+ltrace: trace library function calls by a process. ltrace uses dynamic linker instrumentation to intercept 
+        library function calls, allowing it to track the flow of calls between a program and the shared libraries it uses.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
 What does the getenv do?
+
+Retrieves the value of an environmental variable.
+
+-----------------------------------------------------------------------------------------------------------------------------
 
 Difference between a regular file and a mkfifo file. Why do we need it for challenge 4?
 
+-----------------------------------------------------------------------------------------------------------------------------
+
 open("magic_mirror", 2, ->0400000<-) what does the number represent?
+
+-----------------------------------------------------------------------------------------------------------------------------
 
 What is this function: fcntl(99, F_GETFD)?
 
+-----------------------------------------------------------------------------------------------------------------------------
+
 What does this redirection do exactly and how does it help us to solve challenge 5 ( ./riddle 99>&1)?
+
+-----------------------------------------------------------------------------------------------------------------------------
 
 Why did we use a FIFO file on challenge 6?
 
+-----------------------------------------------------------------------------------------------------------------------------
+
 What is the dup2 function?
+
+-----------------------------------------------------------------------------------------------------------------------------
 
 What is the lstat(".hey_there", 0x7ffc09f60f70) function?
 
+-----------------------------------------------------------------------------------------------------------------------------
+
 What does the dd if=/dev/zero of=bf00 bs=1 count=16 seek=1073741824 command do?
+
+-----------------------------------------------------------------------------------------------------------------------------
 
 What does lseek do?
 
+-----------------------------------------------------------------------------------------------------------------------------
+
 What does mmap do?
 
+-----------------------------------------------------------------------------------------------------------------------------
+
 What does fstat(0, {st_mode=S_IFCHR|0620, st_rdev=makedev(0x88, 0x1), ...}) = 0 do?
+
+-----------------------------------------------------------------------------------------------------------------------------
 
 

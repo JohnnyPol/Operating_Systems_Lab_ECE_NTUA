@@ -28,47 +28,67 @@ Retrieves the value of an environmental variable.
 -----------------------------------------------------------------------------------------------------------------------------
 
 Difference between a regular file and a mkfifo file. Why do we need it for challenge 4?
-
------------------------------------------------------------------------------------------------------------------------------
-
-open("magic_mirror", 2, ->0400000<-) what does the number represent?
+FIFO File: A FIFO allows data written to it to be immediately available for reading.
 
 -----------------------------------------------------------------------------------------------------------------------------
 
 What is this function: fcntl(99, F_GETFD)?
+fcntl (file control) is a versatile system call that performs various operations on file descriptors. It can be used to manipulate file descriptor flags, locking files, setting attributes, and more.
+fcntl(99, F_GETFD): Retrieves the file descriptor flags for file descriptor 99.
 
 -----------------------------------------------------------------------------------------------------------------------------
 
 What does this redirection do exactly and how does it help us to solve challenge 5 ( ./riddle 99>&1)?
-
------------------------------------------------------------------------------------------------------------------------------
-
-Why did we use a FIFO file on challenge 6?
+file descriptor 99, redirecting it to the same target as file descriptor 1
 
 -----------------------------------------------------------------------------------------------------------------------------
 
 What is the dup2 function?
-
+dup2 is used to make one file descriptor a copy of another.
 -----------------------------------------------------------------------------------------------------------------------------
 
 What is the lstat(".hey_there", 0x7ffc09f60f70) function?
+lstat is a system call used to get file metadata
 
 -----------------------------------------------------------------------------------------------------------------------------
 
 What does the dd if=/dev/zero of=bf00 bs=1 count=16 seek=1073741824 command do?
+dd: This is a command-line utility used to copy and convert files. It allows for low-level copying of data from one location to another, often used for creating disk images, formatting disks, or performing similar tasks.
+
+if=/dev/zero:
+if stands for "input file."
+/dev/zero is a special file on Unix-like systems that provides a stream of null bytes (bytes filled with zeros). So the input data in this case is just zeros.
+
+of=bf00:
+of stands for "output file."
+bf00 is the file to which the zeros will be written. If the file doesn’t exist, it will be created.
+
+bs=1:
+bs stands for "block size."
+This sets the size of each block being written to 1 byte. So each write operation will write exactly 1 byte.
+
+count=16:
+This specifies how many blocks (of size bs, in this case 1 byte each) will be copied from the input to the output.
+It means that 16 bytes (16 blocks of 1 byte each) will be written in total.
+
+seek=1073741824:
+seek is used to move (or skip) a number of blocks in the output file before starting to write data.
+It skips 1073741824 blocks (which, with a block size of 1 byte, means 1073741824 bytes or 1 GB) from the start of the output file before writing the 16 bytes.
+Effectively, this leaves a 1 GB gap (filled with zeros) in the file before the actual data is written.
 
 -----------------------------------------------------------------------------------------------------------------------------
 
 What does lseek do?
+It's used to reposition the file offset (also called the file pointer) for an open file descriptor. It allows you to change the current read/write position in a file without actually reading or writing data
 
 -----------------------------------------------------------------------------------------------------------------------------
 
 What does mmap do?
-
+mmap provides a way to map a file or device into a process's memory address space, enabling fast and efficient file I/O by directly manipulating memory
 -----------------------------------------------------------------------------------------------------------------------------
 
 What does fstat(0, {st_mode=S_IFCHR|0620, st_rdev=makedev(0x88, 0x1), ...}) = 0 do?
-
+The fstat system call retrieves information about a file associated with a given file descriptor and stores that information in a structure called stat.
 -----------------------------------------------------------------------------------------------------------------------------
 
 

@@ -186,7 +186,8 @@ ln .hello_there .hey_there
 
 - Challenge 8: We run strace ./riddle and we get that it tries to open the bf00 file. It does an lseek at 1073741824 so we create the bf00 file and
                then we put dummy data until that position with the command dd if=/dev/zero of=bf00 bs=1 count=16 seek=1073741824.
-               After we write some data there so it can read the 16 bytes it wants. 
+               After we write some data there so it can read the 16 bytes it wants. Then it rries the same thing for a file called bf01. So we create a hard link
+		bf01 to the bf00 file. We do that till bf09 file.
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------

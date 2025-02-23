@@ -1,0 +1,9 @@
+*.balloc*
+*.cmd
+*.mod
+*.o*
+*.ko
+*.mod
+*.symvers
+*.mod.c
+*.vscode

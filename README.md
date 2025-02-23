@@ -12,4 +12,4 @@ This repository aims to serve as a helpful resource for students working on Oper
 - [Giannis Polychronopoulos](https://github.com/JohnnyPol)
 - [Kostas Stavliotis](https://github.com/Konstantinos-Stavliotis)
 
-Feel free to contribute or raise any issues! 😊🎯
+Feel free to contribute or raise any issues!
